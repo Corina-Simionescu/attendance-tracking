@@ -2,7 +2,7 @@ const User = require("./User.js");
 const Event = require("./Event.js");
 
 User.hasMany(Event);
-Event.hasOne(User);
+Event.belongsTo(User);
 
 module.exports = {
   User,

@@ -1,4 +1,4 @@
-const sequelize = require("../config/database.js");
+const { sequelize } = require("../config/database.js");
 const { DataTypes } = require("sequelize");
 
 const Event = sequelize.define("Event", {
