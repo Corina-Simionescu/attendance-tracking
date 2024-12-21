@@ -14,15 +14,35 @@ const Event = sequelize.define("Event", {
   description: {
     type: DataTypes.TEXT,
   },
-  date: {
+  startTime: {
     type: DataTypes.DATE,
     allowNull: false,
+  },
+  duration: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.ENUM("CLOSED", "OPEN"),
+    defaultValue: "CLOSED",
+  },
+  accessCode: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
   },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: "Users",
+      key: "id",
+    },
+  },
+  eventGroupId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: "EventGroups",
       key: "id",
     },
   },
