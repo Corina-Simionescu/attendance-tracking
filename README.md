@@ -1,5 +1,13 @@
 # Attendance Monitoring Web Application
 
+## API Documentation
+API endpoints are documented using Swagger/OpenAPI. The documentation is available at /api-docs when running the server.
+
+Currently documented endpoints:
+- Authentication (register, login, profile)
+
+---
+
 ## Project Overview
 
 ### Objective
