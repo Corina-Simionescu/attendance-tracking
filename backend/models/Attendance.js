@@ -16,6 +16,7 @@ const Attendance = sequelize.define(
         model: "Events",
         key: "id",
       },
+      onDelete: "CASCADE",
     },
     participantName: {
       type: DataTypes.STRING,

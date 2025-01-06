@@ -4,6 +4,13 @@ const sequelize = new Sequelize({
   dialect: "sqlite",
   storage: "./data/database.sqlite",
   logging: false,
+  define: {
+    hooks: {
+      beforeConnect: async (config) => {
+        config.dialectOptions = { ...config.dialectOptions, foreignKeys: true };
+      },
+    },
+  },
 });
 
 const initializeDatabase = async () => {
