@@ -34,10 +34,15 @@ router.get(
   authMiddleware.verifyAuthToken,
   eventGroupsController.getAllEventsFromOneEventGroup
 );
-// router.get(
-//   "/:id/export",
-//   authMiddleware.verifyAuthToken,
-//   eventGroupsController.exportGroupAttendance
-// );
+router.get(
+  "/:id/attendance",
+  authMiddleware.verifyAuthToken,
+  eventGroupsController.getEventGroupAttendance
+);
+router.get(
+  "/:id/export-attendance",
+  authMiddleware.verifyAuthToken,
+  eventGroupsController.exportEventGroupAttendance
+);
 
 module.exports = router;
