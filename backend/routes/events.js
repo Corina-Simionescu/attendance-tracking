@@ -26,15 +26,15 @@ router.put(
   authMiddleware.verifyAuthToken,
   eventsController.updateEventStatus
 );
-// router.get(
-//   "/:id/attendees",
-//   authMiddleware.verifyAuthToken,
-//   eventsController.getEventAttendees
-// );
-// router.get(
-//   "/:id/export",
-//   authMiddleware.verifyAuthToken,
-//   eventsController.exportEventAttendance
-// );
+router.get(
+  "/:id/attendance",
+  authMiddleware.verifyAuthToken,
+  eventsController.getEventAttendance
+);
+router.get(
+  "/:id/export-attendance",
+  authMiddleware.verifyAuthToken,
+  eventsController.exportEventAttendance
+);
 
 module.exports = router;
