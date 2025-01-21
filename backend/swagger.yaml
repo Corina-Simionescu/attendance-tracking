@@ -8,6 +8,64 @@ servers:
   - url: http://localhost:3000
     description: Development server
 
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        status:
+          type: string
+          enum: [CLOSED, OPEN]
+        accessCode:
+          type: string
+        userId:
+          type: integer
+        eventGroupId:
+          type: integer
+    EventGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        userId:
+          type: integer
+    Attendance:
+      type: object
+      properties:
+        id:
+          type: integer
+        eventId:
+          type: integer
+        participantName:
+          type: string
+        participantEmail:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
 paths:
   /api/auth/register:
     post:
@@ -42,12 +100,7 @@ paths:
                   message:
                     type: string
                   user:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      username:
-                        type: string
+                    $ref: "#/components/schemas/User"
 
   /api/auth/login:
     post:
@@ -80,12 +133,7 @@ paths:
                   message:
                     type: string
                   user:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      username:
-                        type: string
+                    $ref: "#/components/schemas/User"
                   token:
                     type: string
 
@@ -108,15 +156,512 @@ paths:
                   message:
                     type: string
                   user:
+                    $ref: "#/components/schemas/User"
+
+  /api/events:
+    get:
+      tags:
+        - Events
+      summary: Get all events
+      description: Retrieve all events for the authenticated user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Events retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  events:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Event"
+    post:
+      tags:
+        - Events
+      summary: Create a new event
+      description: Create a new event with optional event group assignment
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - startTime
+                - duration
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                startTime:
+                  type: string
+                  format: date-time
+                duration:
+                  type: integer
+                eventGroupId:
+                  type: integer
+      responses:
+        "201":
+          description: Event created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  event:
+                    $ref: "#/components/schemas/Event"
+
+  /api/events/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Events
+      summary: Get event by ID
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Event retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  event:
+                    $ref: "#/components/schemas/Event"
+    put:
+      tags:
+        - Events
+      summary: Update event
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                startTime:
+                  type: string
+                  format: date-time
+                duration:
+                  type: integer
+      responses:
+        "200":
+          description: Event updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  event:
+                    $ref: "#/components/schemas/Event"
+    delete:
+      tags:
+        - Events
+      summary: Delete event
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Event deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  event:
+                    $ref: "#/components/schemas/Event"
+
+  /api/events/{id}/status:
+    put:
+      tags:
+        - Events
+      summary: Toggle event status
+      description: Toggle event status between OPEN and CLOSED
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Event status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  event:
+                    $ref: "#/components/schemas/Event"
+
+  /api/events/{id}/attendance:
+    get:
+      tags:
+        - Events
+      summary: Get event attendance
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Event attendance retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  event:
                     type: object
                     properties:
                       id:
                         type: integer
-                      username:
+                      title:
                         type: string
+                      status:
+                        type: string
+                  attendance:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Attendance"
 
-securitySchemes:
-  BearerAuth:
-    type: http
-    scheme: bearer
-    bearerFormat: JWT
+  /api/events/{id}/export-attendance:
+    get:
+      tags:
+        - Events
+      summary: Export event attendance
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [csv, xlsx]
+            default: csv
+      responses:
+        "200":
+          description: Event attendance exported successfully
+          content:
+            text/csv:
+              schema:
+                type: string
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  /api/event-groups:
+    get:
+      tags:
+        - Event Groups
+      summary: Get all event groups
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Event groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  eventGroups:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EventGroup"
+    post:
+      tags:
+        - Event Groups
+      summary: Create event group
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "201":
+          description: Event group created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  eventGroup:
+                    $ref: "#/components/schemas/EventGroup"
+
+  /api/event-groups/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Event Groups
+      summary: Get event group by ID
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Event group retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  eventGroup:
+                    $ref: "#/components/schemas/EventGroup"
+    put:
+      tags:
+        - Event Groups
+      summary: Update event group
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "200":
+          description: Event group updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  eventGroup:
+                    $ref: "#/components/schemas/EventGroup"
+    delete:
+      tags:
+        - Event Groups
+      summary: Delete event group
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Event group deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  eventGroup:
+                    $ref: "#/components/schemas/EventGroup"
+
+  /api/event-groups/{id}/events:
+    get:
+      tags:
+        - Event Groups
+      summary: Get all events in group
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Events retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  events:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Event"
+
+  /api/event-groups/{id}/attendance:
+    get:
+      tags:
+        - Event Groups
+      summary: Get event group attendance
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Event group attendance retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  eventGroup:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      events:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            eventId:
+                              type: integer
+                            eventTitle:
+                              type: string
+                            eventDate:
+                              type: string
+                            status:
+                              type: string
+                            attendance:
+                              type: array
+                              items:
+                                $ref: "#/components/schemas/Attendance"
+
+  /api/event-groups/{id}/export-attendance:
+    get:
+      tags:
+        - Event Groups
+      summary: Export event group attendance
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [csv, xlsx]
+            default: csv
+      responses:
+        "200":
+          description: Event group attendance exported successfully
+          content:
+            text/csv:
+              schema:
+                type: string
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  /api/attendance/register:
+    post:
+      tags:
+        - Attendance
+      summary: Record attendance
+      description: Record participant attendance using event access code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - accessCode
+                - participantName
+                - participantEmail
+              properties:
+                accessCode:
+                  type: string
+                participantName:
+                  type: string
+                participantEmail:
+                  type: string
+      responses:
+        "201":
+          description: Attendance recorded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  attendance:
+                    $ref: "#/components/schemas/Attendance"
