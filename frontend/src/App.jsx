@@ -6,7 +6,8 @@ import {
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import Auth from "./components/Auth";
+import Auth from "./components/Auth.jsx";
+import Dashboard from "./components/Dashboard.jsx";
 
 function App() {
   return (
