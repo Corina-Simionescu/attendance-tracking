@@ -4,12 +4,14 @@ const express = require("express");
 const swaggerUi = require("swagger-ui-express");
 const fs = require("fs");
 const YAML = require("yaml");
+const cors = require("cors");
 
 const { initializeDatabase } = require("./config/database.js");
 const routes = require("./routes/index.js");
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
